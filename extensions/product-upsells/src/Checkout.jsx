@@ -62,13 +62,17 @@ function ProductUpsells() {
           rating: metafield(namespace: $ratingNamespace, key: $ratingKey) {
             value
           }
-          variants(first: 1) {
+          variants(first: 50) {
             edges {
               node {
                 id
                 price {
                   amount
                   currencyCode
+                }
+                selectedOptions {
+                  name
+                  value
                 }
               }
             }
@@ -107,7 +111,21 @@ function ProductUpsells() {
             seen.add(product.id);
 
             const image = product.images?.edges?.[0]?.node;
-            const variant = product.variants?.edges?.[0]?.node;
+            const variantNodes =
+              product.variants?.edges?.map((e) => e.node) || [];
+            const SUB_RE =
+              /subscri|auto[\s-]?(ship|refill|deliver)|recurring|save \d/i;
+            const ONETIME_RE = /one[\s-]?time|single purchase|one[\s-]?off/i;
+            const hasSub = (v) =>
+              (v.selectedOptions || []).some((o) => SUB_RE.test(o.value || ''));
+            const hasOneTime = (v) =>
+              (v.selectedOptions || []).some((o) =>
+                ONETIME_RE.test(o.value || ''),
+              );
+            const variant =
+              variantNodes.find(hasOneTime) ||
+              variantNodes.find((v) => !hasSub(v)) ||
+              variantNodes[0];
 
             if (variant) {
               const ratingVal = product.rating?.value?.trim();
