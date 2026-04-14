@@ -1,0 +1,30 @@
+api_version = "2025-04"
+uid = "18b95cd9-e42a-1b7b-0dfd-4babac3e19ddaa4e4537"
+
+[[extensions]]
+type = "ui_extension"
+name = "Product Reviews Carousel"
+handle = "product-reviews-carousel"
+
+  [[extensions.targeting]]
+  module = "./src/Checkout.jsx"
+  target = "purchase.checkout.block.render"
+
+  [extensions.capabilities]
+  api_access = true
+
+  [[extensions.metafields]]
+  namespace = "custom"
+  key = "review_author"
+
+  [[extensions.metafields]]
+  namespace = "custom"
+  key = "review_title"
+
+  [[extensions.metafields]]
+  namespace = "custom"
+  key = "rating_review"
+
+  [[extensions.metafields]]
+  namespace = "custom"
+  key = "review_rating"

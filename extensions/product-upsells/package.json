@@ -1,0 +1,10 @@
+{
+  "name": "product-upsells",
+  "private": true,
+  "dependencies": {
+    "@shopify/ui-extensions-react": "2024.4.x",
+    "@shopify/ui-extensions": "2024.4.x",
+    "react": "^18.2.0",
+    "react-reconciler": "^0.29.2"
+  }
+}

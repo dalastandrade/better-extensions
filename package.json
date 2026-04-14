@@ -1,0 +1,12 @@
+{
+  "name": "better-extensions",
+  "private": true,
+  "scripts": {
+    "shopify": "shopify",
+    "dev": "shopify app dev",
+    "deploy": "shopify app deploy"
+  },
+  "devDependencies": {
+    "@shopify/cli": "^3.49.0"
+  }
+}
