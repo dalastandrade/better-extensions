@@ -66,6 +66,7 @@ function ProductUpsells() {
             edges {
               node {
                 id
+                requiresSellingPlan
                 price {
                   amount
                   currencyCode
@@ -73,6 +74,15 @@ function ProductUpsells() {
                 selectedOptions {
                   name
                   value
+                }
+                sellingPlanAllocations(first: 1) {
+                  edges {
+                    node {
+                      sellingPlan {
+                        id
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -106,26 +116,34 @@ function ProductUpsells() {
             products = result?.data?.productRecommendations || [];
           }
 
+          const EXCLUDE_RE = /\b(free|complimentary|gwp|loyalty)\b/i;
+
           for (const product of products) {
             if (cartProductIds.has(product.id) || seen.has(product.id)) continue;
+            if (EXCLUDE_RE.test(product.title || '')) continue;
             seen.add(product.id);
 
             const image = product.images?.edges?.[0]?.node;
             const variantNodes =
               product.variants?.edges?.map((e) => e.node) || [];
-            const SUB_RE =
-              /subscri|auto[\s-]?(ship|refill|deliver)|recurring|save \d/i;
-            const ONETIME_RE = /one[\s-]?time|single purchase|one[\s-]?off/i;
-            const hasSub = (v) =>
-              (v.selectedOptions || []).some((o) => SUB_RE.test(o.value || ''));
-            const hasOneTime = (v) =>
-              (v.selectedOptions || []).some((o) =>
-                ONETIME_RE.test(o.value || ''),
-              );
+            const hasNoSellingPlan = (v) =>
+              !v.requiresSellingPlan &&
+              (v.sellingPlanAllocations?.edges?.length || 0) === 0;
             const variant =
-              variantNodes.find(hasOneTime) ||
-              variantNodes.find((v) => !hasSub(v)) ||
-              variantNodes[0];
+              variantNodes.find(hasNoSellingPlan) || variantNodes[0];
+
+            console.log('[upsell] product', product.title, {
+              productId: product.id,
+              variantCount: variantNodes.length,
+              variants: variantNodes.map((v) => ({
+                id: v.id,
+                requiresSellingPlan: v.requiresSellingPlan,
+                sellingPlanCount: v.sellingPlanAllocations?.edges?.length || 0,
+                selectedOptions: v.selectedOptions,
+              })),
+              pickedVariantId: variant?.id,
+              pickedOptions: variant?.selectedOptions,
+            });
 
             if (variant) {
               const ratingVal = product.rating?.value?.trim();
@@ -179,12 +197,14 @@ function ProductUpsells() {
   };
 
   const handleAdd = async (variantId) => {
+    console.log('[upsell] add to cart', {variantId});
     setAdding(true);
-    await applyCartLinesChange({
+    const result = await applyCartLinesChange({
       type: 'addCartLine',
       merchandiseId: variantId,
       quantity: 1,
     });
+    console.log('[upsell] add result', result);
     setAdding(false);
   };
 
