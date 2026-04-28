@@ -84,7 +84,6 @@ function ProductUpsells() {
             edges {
               node {
                 id
-                requiresSellingPlan
                 price {
                   amount
                   currencyCode
@@ -154,7 +153,6 @@ function ProductUpsells() {
             const variantNodes =
               product.variants?.edges?.map((e) => e.node) || [];
             const hasNoSellingPlan = (v) =>
-              !v.requiresSellingPlan &&
               (v.sellingPlanAllocations?.edges?.length || 0) === 0;
             const variant =
               variantNodes.find(hasNoSellingPlan) || variantNodes[0];
@@ -164,7 +162,6 @@ function ProductUpsells() {
               variantCount: variantNodes.length,
               variants: variantNodes.map((v) => ({
                 id: v.id,
-                requiresSellingPlan: v.requiresSellingPlan,
                 sellingPlanCount: v.sellingPlanAllocations?.edges?.length || 0,
                 selectedOptions: v.selectedOptions,
               })),
