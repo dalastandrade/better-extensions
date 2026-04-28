@@ -20,10 +20,18 @@ export default reactExtension(
 );
 
 function ProductUpsells() {
+  console.log('[upsell] render: top');
   const {query} = useApi();
+  console.log('[upsell] render: after useApi', typeof query);
   const cartLines = useCartLines();
+  console.log('[upsell] render: after useCartLines', cartLines?.length);
   const applyCartLinesChange = useApplyCartLinesChange();
+  console.log(
+    '[upsell] render: after useApplyCartLinesChange',
+    typeof applyCartLinesChange,
+  );
   const settings = useSettings();
+  console.log('[upsell] render: after useSettings', settings);
   const ratingNamespace =
     (settings.rating_namespace || '').toString().trim() || 'custom';
   const ratingKey =
