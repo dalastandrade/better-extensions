@@ -101,7 +101,12 @@ function ProductUpsells() {
             },
           });
 
+          if (result?.errors) {
+            console.log('[upsell] complementary errors', productId, result.errors);
+          }
+
           let products = result?.data?.productRecommendations || [];
+          console.log('[upsell] complementary count', productId, products.length);
 
           // Fall back to RELATED if no complementary recommendations
           if (products.length === 0) {
@@ -113,7 +118,11 @@ function ProductUpsells() {
                 ratingKey,
               },
             });
+            if (result?.errors) {
+              console.log('[upsell] related errors', productId, result.errors);
+            }
             products = result?.data?.productRecommendations || [];
+            console.log('[upsell] related count', productId, products.length);
           }
 
           const EXCLUDE_RE = /\b(free|complimentary|gwp|loyalty)\b/i;
@@ -158,8 +167,8 @@ function ProductUpsells() {
               });
             }
           }
-        } catch {
-          // Skip on error
+        } catch (err) {
+          console.log('[upsell] query exception', productId, err);
         }
       }
 
