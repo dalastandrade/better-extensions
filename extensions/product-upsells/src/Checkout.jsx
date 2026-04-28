@@ -33,12 +33,22 @@ function ProductUpsells() {
   const [adding, setAdding] = useState(false);
 
   useEffect(() => {
+    console.log('[upsell] effect run', {
+      cartLineCount: cartLines.length,
+      cartLines: cartLines.map((l) => ({
+        id: l.id,
+        productId: l.merchandise?.product?.id,
+        title: l.merchandise?.product?.title,
+      })),
+    });
     async function fetchRecommendations() {
       const cartProductIds = new Set(
         cartLines.map((line) => line.merchandise.product.id),
       );
+      console.log('[upsell] cartProductIds', Array.from(cartProductIds));
 
       if (cartProductIds.size === 0) {
+        console.log('[upsell] empty cart, bailing');
         setRecommendations([]);
         setLoading(false);
         return;
