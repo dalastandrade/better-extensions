@@ -1,0 +1,18 @@
+ mutation {                                                                    
+    metafieldStorefrontVisibilityCreate(input: {            
+      namespace: "okendo"                                                       
+      key: "summaryData"
+      ownerType: PRODUCT                                                        
+    }) {                                                                        
+      metafieldStorefrontVisibility { id namespace key }
+      userErrors { field message }                                              
+    }                                                       
+  }                                                                             
+                                                            
+  4. Expected success response:                                                 
+  { "data": { "metafieldStorefrontVisibilityCreate": {
+    "metafieldStorefrontVisibility": { "id": "...", "namespace": "okendo",      
+  "key": "summaryData" },                                                 
+    "userErrors": []                                                            
+  }}}               
+       
