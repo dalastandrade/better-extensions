@@ -167,6 +167,8 @@ function ProductUpsells() {
               })),
               pickedVariantId: variant?.id,
               pickedOptions: variant?.selectedOptions,
+              ratingMetafield: product.rating,
+              ratingRawValue: product.rating?.value,
             });
 
             if (variant) {
