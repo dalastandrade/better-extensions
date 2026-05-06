@@ -170,7 +170,31 @@ function ProductUpsells() {
             });
 
             if (variant) {
-              const ratingVal = product.rating?.value?.trim();
+              const raw = product.rating?.value;
+              let ratingAvg = null;
+              let ratingCount = null;
+              if (raw) {
+                try {
+                  const parsed = JSON.parse(raw);
+                  if (typeof parsed === 'object' && parsed) {
+                    if (typeof parsed.reviewAverageValue === 'number') {
+                      ratingAvg = parsed.reviewAverageValue;
+                    } else if (parsed.reviewAverageValue) {
+                      ratingAvg = parseFloat(parsed.reviewAverageValue);
+                    }
+                    if (typeof parsed.reviewCount === 'number') {
+                      ratingCount = parsed.reviewCount;
+                    } else if (parsed.reviewCount) {
+                      ratingCount = parseInt(parsed.reviewCount, 10);
+                    }
+                  } else if (typeof parsed === 'number') {
+                    ratingAvg = parsed;
+                  }
+                } catch {
+                  const n = parseFloat(raw);
+                  if (!Number.isNaN(n)) ratingAvg = n;
+                }
+              }
               allRecs.push({
                 productId: product.id,
                 title: product.title,
@@ -178,7 +202,8 @@ function ProductUpsells() {
                 price: variant.price,
                 imageUrl: image?.url || '',
                 imageAlt: image?.altText || product.title,
-                rating: ratingVal ? parseInt(ratingVal, 10) : 5,
+                ratingAvg,
+                ratingCount,
               });
             }
           }
@@ -256,10 +281,24 @@ function ProductUpsells() {
                 {product.title}
               </Text>
               <Text size="small">{formatPrice(product.price)}</Text>
-              <Text size="small" appearance="warning">
-                {'★'.repeat(Math.min(Math.max(product.rating, 0), 5))}
-                {'☆'.repeat(5 - Math.min(Math.max(product.rating, 0), 5))}
-              </Text>
+              {product.ratingAvg != null && (
+                <InlineStack spacing="extraTight" blockAlignment="center">
+                  <Text size="small" appearance="warning">
+                    {(() => {
+                      const filled = Math.round(
+                        Math.min(Math.max(product.ratingAvg, 0), 5),
+                      );
+                      return '★'.repeat(filled) + '☆'.repeat(5 - filled);
+                    })()}
+                  </Text>
+                  <Text size="small" appearance="subdued">
+                    {product.ratingAvg.toFixed(1)}
+                    {product.ratingCount != null
+                      ? ` (${product.ratingCount})`
+                      : ''}
+                  </Text>
+                </InlineStack>
+              )}
             </BlockStack>
           </InlineStack>
           <Button
